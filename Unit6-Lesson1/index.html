@@ -1,0 +1,454 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, ChevronLeft, Check, RotateCcw, Star, MousePointerClick } from 'lucide-react';
+
+// --- STYLED COMPONENTS & ASSETS ---
+
+// Recreated Ami Connect Logo as a Cut-Out Sticker
+const AmiConnectLogo = () => (
+  <div className="relative inline-block drop-shadow-xl bg-white p-4 rounded-3xl border-4 border-white transform hover:scale-105 transition-transform duration-300">
+    <svg width="220" height="90" viewBox="0 0 220 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Red Swoosh */}
+      <path d="M 20 60 C 30 30, 80 15, 140 25 C 100 20, 50 35, 30 65 Z" fill="#D31122" />
+      {/* "Ami" Text */}
+      <text x="60" y="55" fontFamily="Arial, sans-serif" fontSize="48" fontWeight="900" fill="#142B72" letterSpacing="-2">Ami</text>
+      {/* Blue Star */}
+      <path d="M 160 35 L 165 20 L 175 18 L 168 28 L 175 40 L 162 36 L 155 45 L 156 32 Z" fill="#1A56A8" stroke="#142B72" strokeWidth="2" strokeLinejoin="round" />
+      {/* "Connect" Text */}
+      <text x="75" y="80" fontFamily="Arial, sans-serif" fontSize="22" fontWeight="800" fill="#142B72">Connect</text>
+    </svg>
+  </div>
+);
+
+// Tropical Leaf Decorations (matching the pink slide aesthetic)
+const LeafDecorations = () => (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+    {/* Top Left Outline Leaf */}
+    <svg className="absolute top-0 left-0 w-32 h-48 text-gray-700 opacity-20 transform -translate-x-4 -translate-y-4" viewBox="0 0 100 150" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M0,0 C30,20 80,50 50,150 C20,100 0,60 0,0 Z" />
+      <path d="M20,20 C40,40 40,80 50,150" />
+      <path d="M25,40 L45,35 M30,60 L50,50 M35,80 L50,70 M40,100 L50,90" />
+    </svg>
+    {/* Top Right Solid Leaves */}
+    <svg className="absolute -top-10 -right-10 w-48 h-48 transform rotate-12" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <path d="M150,0 C150,50 100,100 200,200 C200,100 250,50 150,0 Z" fill="#75C2B6" opacity="0.9" />
+      <path d="M200,0 C150,20 120,80 200,150 C250,80 280,20 200,0 Z" fill="#2E5C6E" opacity="0.9" />
+    </svg>
+    {/* Bottom Left Small Leaf */}
+    <svg className="absolute bottom-0 left-0 w-40 h-40 transform translate-y-10 -translate-x-10" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,200 C50,200 100,150 0,50 C0,100 -50,150 0,200 Z" fill="#E8B54D" opacity="0.8" />
+      <path d="M0,200 C20,150 80,120 100,50 C50,80 20,120 0,200 Z" fill="#75C2B6" opacity="0.9" />
+      <path d="M0,200 L50,120 M10,170 L40,150 M20,140 L50,130" stroke="#1A3B47" strokeWidth="2" />
+    </svg>
+  </div>
+);
+
+// Layout Wrapper
+const SlideLayout = ({ children, nextSlide, prevSlide, isFirst, isLast }) => (
+  <div className="flex flex-col items-center justify-center min-h-screen bg-[#F4D8D8] p-4 font-sans select-none overflow-hidden relative">
+    <LeafDecorations />
+    
+    <div className="z-10 w-full max-w-5xl flex flex-col items-center">
+      {children}
+    </div>
+
+    {/* Navigation Bar */}
+    <div className="fixed bottom-6 w-full max-w-5xl flex justify-between px-8 z-20">
+      <button 
+        onClick={prevSlide}
+        className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold shadow-lg transition-all ${isFirst ? 'opacity-0 pointer-events-none' : 'bg-white text-pink-600 hover:bg-pink-50'}`}
+      >
+        <ChevronLeft size={24} /> Back
+      </button>
+      
+      <div className="flex gap-2 items-center">
+        {[0, 1, 2, 3].map((dot) => (
+          <div key={dot} className={`w-3 h-3 rounded-full transition-all ${dot === (!isFirst && !isLast ? 1 : 0) ? 'bg-pink-500 scale-125' : 'bg-pink-300'}`} />
+        ))}
+      </div>
+
+      <button 
+        onClick={nextSlide}
+        className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold shadow-lg transition-all ${isLast ? 'opacity-0 pointer-events-none' : 'bg-pink-500 text-white hover:bg-pink-600 hover:scale-105'}`}
+      >
+        Next <ChevronRight size={24} />
+      </button>
+    </div>
+  </div>
+);
+
+
+// --- SLIDE COMPONENTS ---
+
+// Slide 0: Cover
+const CoverSlide = ({ nextSlide }) => (
+  <div className="flex flex-col items-center justify-center text-center space-y-12">
+    <AmiConnectLogo />
+    <div className="bg-white/80 backdrop-blur-sm p-10 rounded-3xl shadow-xl border-4 border-white max-w-2xl w-full">
+      <h2 className="text-3xl font-bold text-pink-500 mb-2 tracking-wider uppercase">Unit 6 - Lesson 1</h2>
+      <h1 className="text-6xl font-black text-gray-800 mb-6 drop-shadow-sm">They're bears!</h1>
+      <p className="text-xl text-gray-600 mb-8 font-medium">Interactive Vocabulary & Grammar Practice</p>
+      
+      <button 
+        onClick={nextSlide}
+        className="group relative inline-flex items-center justify-center px-10 py-5 text-2xl font-bold text-white transition-all duration-200 bg-[#75C2B6] border-4 border-[#2E5C6E] rounded-full hover:bg-[#5EAA9F] hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-300"
+      >
+        <span className="mr-3">Start Lesson</span>
+        <ChevronRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
+      </button>
+    </div>
+  </div>
+);
+
+// Slide 1: Unscramble
+const UnscrambleSlide = () => {
+  const words = [
+    { word: 'HIPPO', emoji: '🦛' },
+    { word: 'TIGER', emoji: '🐅' },
+    { word: 'BEAR', emoji: '🐻' },
+    { word: 'BIRD', emoji: '🐦' },
+    { word: 'CROCODILE', emoji: '🐊' }
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentLetters, setCurrentLetters] = useState([]);
+  const [selectedLetters, setSelectedLetters] = useState([]);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    // Shuffle word letters
+    const letters = words[currentIndex].word.split('');
+    const shuffled = [...letters].sort(() => Math.random() - 0.5);
+    setCurrentLetters(shuffled.map((char, id) => ({ char, id, used: false })));
+    setSelectedLetters([]);
+    setIsSuccess(false);
+  }, [currentIndex]);
+
+  const handleLetterClick = (clickedLetter) => {
+    if (clickedLetter.used || isSuccess) return;
+
+    const newCurrent = currentLetters.map(l => 
+      l.id === clickedLetter.id ? { ...l, used: true } : l
+    );
+    setCurrentLetters(newCurrent);
+    
+    const newSelected = [...selectedLetters, clickedLetter];
+    setSelectedLetters(newSelected);
+
+    // Check Win
+    if (newSelected.map(l => l.char).join('') === words[currentIndex].word) {
+      setIsSuccess(true);
+    }
+  };
+
+  const handleUndo = (clickedLetter) => {
+    if (isSuccess) return;
+    const newSelected = selectedLetters.filter(l => l.id !== clickedLetter.id);
+    setSelectedLetters(newSelected);
+    
+    const newCurrent = currentLetters.map(l => 
+      l.id === clickedLetter.id ? { ...l, used: false } : l
+    );
+    setCurrentLetters(newCurrent);
+  };
+
+  const nextWord = () => {
+    if (currentIndex < words.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      setCurrentIndex(0); // Loop back
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center w-full max-w-4xl space-y-6">
+      <h2 className="text-5xl font-black text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] tracking-widest uppercase mb-4">
+        REARRANGE THE LETTERS
+      </h2>
+
+      <div className="bg-[#75C2B6] p-8 rounded-[40px] shadow-2xl border-8 border-white w-full flex flex-col items-center space-y-8 relative overflow-hidden">
+        {/* Progress Dots */}
+        <div className="absolute top-4 right-6 flex gap-2">
+          {words.map((_, idx) => (
+            <div key={idx} className={`w-3 h-3 rounded-full ${idx === currentIndex ? 'bg-white' : 'bg-teal-700/30'}`} />
+          ))}
+        </div>
+
+        {/* Image/Emoji Container */}
+        <div className="bg-white w-48 h-48 rounded-full flex items-center justify-center text-8xl shadow-inner border-4 border-teal-100 animate-bounce-slow">
+          {words[currentIndex].emoji}
+        </div>
+
+        {/* Answer Slots */}
+        <div className="flex gap-3 mt-4">
+          {words[currentIndex].word.split('').map((_, idx) => (
+            <div key={idx} className="w-16 h-20 bg-teal-800/20 rounded-xl border-b-4 border-teal-800/40 flex items-center justify-center text-4xl font-bold text-white shadow-inner">
+              {selectedLetters[idx] ? (
+                <button onClick={() => handleUndo(selectedLetters[idx])} className="w-full h-full text-white hover:text-red-200 transition-colors">
+                  {selectedLetters[idx].char}
+                </button>
+              ) : ''}
+            </div>
+          ))}
+        </div>
+
+        {/* Available Letters */}
+        <div className="flex gap-4 flex-wrap justify-center mt-4">
+          {currentLetters.map((letter) => (
+            <button
+              key={letter.id}
+              onClick={() => handleLetterClick(letter)}
+              disabled={letter.used || isSuccess}
+              className={`w-16 h-16 rounded-2xl text-3xl font-black transition-all duration-200 transform ${
+                letter.used 
+                  ? 'opacity-0 scale-50 pointer-events-none' 
+                  : 'bg-yellow-400 text-teal-900 border-b-8 border-yellow-600 hover:-translate-y-2 hover:bg-yellow-300 active:border-b-0 active:translate-y-2'
+              }`}
+            >
+              {letter.char}
+            </button>
+          ))}
+        </div>
+
+        {/* Success Overlay */}
+        {isSuccess && (
+          <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
+            <div className="bg-green-500 rounded-full p-4 mb-4">
+              <Check size={64} className="text-white" />
+            </div>
+            <h3 className="text-4xl font-black text-green-600 mb-6 uppercase tracking-widest">Correct!</h3>
+            <button 
+              onClick={nextWord}
+              className="bg-pink-500 text-white px-8 py-4 rounded-full text-2xl font-bold border-b-8 border-pink-700 hover:bg-pink-400 active:border-b-0 active:translate-y-2 transition-all"
+            >
+              Next Animal
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
+// Slide 2: Grammar Fill in the blank
+const GrammarSlide = () => {
+  const questions = [
+    { emojis: '🐊 🐊', target: 'crocodiles', options: ["They're crocodiles.", "It's a crocodile.", "They're hippos."] },
+    { emojis: '🐻 🐻 🐻', target: 'bears', options: ["It's a bear.", "They're bears.", "They're birds."] },
+    { emojis: '🐦 🐦', target: 'birds', options: ["They're birds.", "It's a bird.", "They're tigers."] },
+    { emojis: '🦛 🦛', target: 'hippos', options: ["It's a hippo.", "They're crocodiles.", "They're hippos."] }
+  ];
+
+  const [qIndex, setQIndex] = useState(0);
+  const [feedback, setFeedback] = useState(null); // 'correct', 'wrong', null
+
+  const handleAnswer = (option) => {
+    if (option.includes(questions[qIndex].target)) {
+      setFeedback('correct');
+      setTimeout(() => {
+        setFeedback(null);
+        setQIndex((prev) => (prev + 1) % questions.length);
+      }, 2000);
+    } else {
+      setFeedback('wrong');
+      setTimeout(() => setFeedback(null), 1000);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center w-full max-w-4xl space-y-6">
+       <h2 className="text-5xl font-black text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] tracking-widest uppercase mb-4 text-center leading-tight">
+        FILL IN THE BLANK
+      </h2>
+
+      <div className="bg-white/90 p-10 rounded-[40px] shadow-xl border-4 border-white w-full flex flex-col items-center space-y-10 relative">
+         <div className="text-7xl mb-4 h-24 flex items-center justify-center tracking-widest">
+            {questions[qIndex].emojis}
+         </div>
+
+         <div className="text-4xl font-bold text-gray-800 flex items-center gap-4">
+            <span className="text-pink-500">Q:</span> What are they?
+         </div>
+
+         <div className="text-5xl font-black text-teal-600 mb-8 pb-4 border-b-4 border-dashed border-gray-300 min-w-[300px] text-center">
+            {feedback === 'correct' ? (
+              <span className="text-green-500 animate-pulse">{questions[qIndex].options.find(o => o.includes(questions[qIndex].target))}</span>
+            ) : (
+              "___________________"
+            )}
+         </div>
+
+         <div className="flex flex-col w-full gap-4 max-w-lg">
+            {questions[qIndex].options.map((opt, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleAnswer(opt)}
+                disabled={feedback !== null}
+                className={`p-5 rounded-2xl text-2xl font-bold transition-all border-4 text-left pl-8 ${
+                  feedback === 'correct' && opt.includes(questions[qIndex].target)
+                    ? 'bg-green-100 border-green-500 text-green-700 scale-105'
+                    : feedback === 'wrong'
+                    ? 'bg-red-50 border-red-200 text-red-400'
+                    : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-pink-400 hover:bg-pink-50'
+                }`}
+              >
+                {opt}
+              </button>
+            ))}
+         </div>
+
+         {/* Status Indicators */}
+         {feedback === 'wrong' && (
+           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white p-6 rounded-full shadow-2xl animate-bounce">
+             <RotateCcw size={48} />
+           </div>
+         )}
+         {feedback === 'correct' && (
+           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white p-6 rounded-full shadow-2xl animate-ping">
+             <Star size={48} />
+           </div>
+         )}
+      </div>
+    </div>
+  );
+};
+
+
+// Slide 3: Name These Animals (Tap and Match)
+const MatchSlide = () => {
+  const animals = [
+    { id: 1, name: 'BIRD', emoji: '🐦' },
+    { id: 2, name: 'BEAR', emoji: '🐻' },
+    { id: 3, name: 'HIPPO', emoji: '🦛' },
+    { id: 4, name: 'CROCODILE', emoji: '🐊' },
+    { id: 5, name: 'TIGER', emoji: '🐅' }
+  ];
+
+  const [selectedAnimal, setSelectedAnimal] = useState(null);
+  const [matchedPairs, setMatchedPairs] = useState([]); // Array of IDs
+
+  const handleAnimalClick = (id) => {
+    if (!matchedPairs.includes(id)) setSelectedAnimal(id);
+  };
+
+  const handleWordClick = (name) => {
+    if (!selectedAnimal) return;
+    
+    const animal = animals.find(a => a.id === selectedAnimal);
+    if (animal && animal.name === name) {
+      // Match!
+      setMatchedPairs([...matchedPairs, selectedAnimal]);
+      setSelectedAnimal(null);
+    } else {
+      // Wrong Match
+      setSelectedAnimal(null);
+      // Optional: Add a screen shake effect here
+    }
+  };
+
+  const isComplete = matchedPairs.length === animals.length;
+
+  return (
+    <div className="flex flex-col items-center w-full max-w-5xl space-y-6">
+      <h2 className="text-5xl font-black text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] tracking-widest uppercase mb-2 text-center">
+        NAME THESE ANIMALS
+      </h2>
+      <p className="text-white text-xl font-bold bg-pink-400/50 px-6 py-2 rounded-full mb-4 flex items-center gap-2">
+        <MousePointerClick size={20} /> Tap an animal, then tap its name!
+      </p>
+
+      <div className="w-full flex flex-col gap-8">
+        {/* Animal Display Grid */}
+        <div className="flex justify-center gap-4 flex-wrap">
+          {animals.map((animal) => {
+            const isMatched = matchedPairs.includes(animal.id);
+            const isSelected = selectedAnimal === animal.id;
+            
+            return (
+              <div 
+                key={animal.id}
+                onClick={() => handleAnimalClick(animal.id)}
+                className={`flex flex-col items-center p-4 rounded-3xl transition-all cursor-pointer ${
+                  isMatched 
+                    ? 'bg-green-100 border-4 border-green-400 opacity-60' 
+                    : isSelected
+                    ? 'bg-yellow-100 border-4 border-yellow-400 scale-110 shadow-xl'
+                    : 'bg-white border-4 border-white shadow-md hover:scale-105 hover:shadow-lg'
+                }`}
+              >
+                <div className="text-7xl w-32 h-32 flex items-center justify-center">
+                  {animal.emoji}
+                </div>
+                {/* Name Tag Slot */}
+                <div className={`mt-2 w-full py-2 rounded-lg text-center font-bold text-xl ${isMatched ? 'bg-green-500 text-white' : 'bg-gray-100 text-transparent border-2 border-dashed border-gray-300'}`}>
+                  {isMatched ? animal.name : '????'}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Word Bank */}
+        <div className="bg-white/80 p-6 rounded-3xl shadow-inner border-4 border-[#75C2B6] flex justify-center gap-4 flex-wrap">
+           {/* Shuffle words for the bank so they aren't in order */}
+           {[...animals].sort((a,b) => a.name.localeCompare(b.name)).map((animal) => (
+             <button
+                key={`word-${animal.id}`}
+                onClick={() => handleWordClick(animal.name)}
+                disabled={matchedPairs.includes(animal.id) || !selectedAnimal}
+                className={`px-8 py-4 rounded-xl text-2xl font-bold transition-all ${
+                  matchedPairs.includes(animal.id)
+                    ? 'opacity-0 scale-50 pointer-events-none'
+                    : selectedAnimal
+                    ? 'bg-yellow-400 text-yellow-900 border-b-4 border-yellow-600 hover:bg-yellow-300 active:border-b-0 active:translate-y-1'
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+             >
+                {animal.name}
+             </button>
+           ))}
+        </div>
+      </div>
+
+      {isComplete && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
+           <div className="bg-white p-12 rounded-[50px] flex flex-col items-center shadow-2xl transform hover:scale-105 transition-all text-center">
+              <span className="text-8xl mb-6">🎉</span>
+              <h1 className="text-5xl font-black text-pink-500 mb-4">Amazing Job!</h1>
+              <p className="text-2xl text-gray-600 font-medium mb-8">You named all the animals!</p>
+              <button 
+                onClick={() => { setMatchedPairs([]); setSelectedAnimal(null); }}
+                className="bg-teal-500 text-white px-10 py-4 rounded-full text-2xl font-bold shadow-lg hover:bg-teal-400 active:scale-95"
+              >
+                Play Again
+              </button>
+           </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+// --- MAIN APP ---
+export default function App() {
+  const [slide, setSlide] = useState(0);
+  const totalSlides = 4;
+
+  const nextSlide = () => setSlide((prev) => Math.min(prev + 1, totalSlides - 1));
+  const prevSlide = () => setSlide((prev) => Math.max(prev - 1, 0));
+
+  return (
+    <SlideLayout 
+      nextSlide={nextSlide} 
+      prevSlide={prevSlide} 
+      isFirst={slide === 0} 
+      isLast={slide === totalSlides - 1}
+    >
+      {slide === 0 && <CoverSlide nextSlide={nextSlide} />}
+      {slide === 1 && <UnscrambleSlide />}
+      {slide === 2 && <GrammarSlide />}
+      {slide === 3 && <MatchSlide />}
+    </SlideLayout>
+  );
+}
