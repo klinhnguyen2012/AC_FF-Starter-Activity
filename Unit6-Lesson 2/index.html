@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ami Connect - Unit 6: They're bears!</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts for Kids Friendly UI -->
+  <link href="https://fonts.googleapis.acom/css2?family=Quicksand:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: #FDF5F5;
+    }
+    /* Lined Notebook Paper Background */
+    .notebook-paper {
+      background-color: #FFFBFB;
+      background-image: linear-gradient(#e5e7eb 1px, transparent 1px);
+      background-size: 100% 2.5rem;
+      position: relative;
+      border: 8px solid white;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .notebook-paper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 3rem;
+      width: 2px;
+      background-color: #fca5a5;
+    }
+    /* Smooth wrong answer shake effect */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+    .animate-shake {
+      animation: shake 0.2s ease-in-out 2;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FDF5F5;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #F4D8D8;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #E4A8A8;
+    }
+  </style>
+</head>
+<body class="overflow-hidden h-screen select-none relative">
+
+  <!-- BACKGROUND DECORATIONS (Tropical Pink Leaves) -->
+  <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+    <!-- Top Left Monstera Leaf -->
+    <svg class="absolute -top-10 -left-10 w-48 h-48 opacity-25 text-pink-400 transform -rotate-12" fill="currentColor" viewBox="0 0 100 100">
+      <path d="M80,20 C70,10 50,5 30,15 C10,25 5,50 15,70 C25,90 50,95 70,85 C90,75 90,40 80,20 Z M35,30 C38,30 40,32 40,35 C40,38 38,40 35,40 C32,40 30,38 30,35 C30,32 32,30 35,30 Z M55,75 C45,80 35,70 30,60 C25,50 35,40 45,45 C55,50 60,70 55,75 Z"/>
+    </svg>
+    <!-- Bottom Right Leaf -->
+    <svg class="absolute -bottom-16 -right-16 w-64 h-64 opacity-20 text-[#75C2B6] transform rotate-45" fill="currentColor" viewBox="0 0 100 100">
+      <path d="M20,80 C30,90 50,95 70,85 C90,75 95,50 85,30 C75,10 50,5 30,15 C10,25 10,60 20,80 Z M65,70 C62,70 60,68 60,65 C60,62 62,60 65,60 C68,60 70,62 70,65 C70,68 68,70 65,70 Z"/>
+    </svg>
+  </div>
+
+  <!-- WHITEBOARD CANVAS OVERLAY -->
+  <canvas id="whiteboard" class="absolute inset-0 z-40 pointer-events-none w-full h-full"></canvas>
+
+  <!-- APP CONTAINER -->
+  <div class="relative z-10 flex flex-col h-full justify-between p-4 max-w-7xl mx-auto">
+    
+    <!-- TOP BAR (Logo Sticker, Title & Toolbar) -->
+    <header class="flex justify-between items-center z-50">
+      <!-- Ami Connect Official Logo Sticker -->
+      <div class="relative drop-shadow-[0_8px_16px_rgba(12,35,86,0.22)] transform hover:rotate-1 hover:scale-105 transition-transform duration-300">
+        <!-- Thick White Cut-Out Sticker Contour -->
+        <div class="bg-white px-5 py-3 rounded-[24px] border-[5px] border-white shadow-md flex items-center justify-center">
+          <svg width="150" height="75" viewBox="0 0 240 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- Color Gradients for Premium Feel -->
+              <linearGradient id="swooshGrad" x1="30" y1="75" x2="165" y2="35" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#C51827" />
+                <stop offset="100%" stop-color="#E52D3D" />
+              </linearGradient>
+              <linearGradient id="starGrad" x1="150" y1="20" x2="180" y2="55" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#2D72D9" />
+                <stop offset="100%" stop-color="#14469E" />
+              </linearGradient>
+            </defs>
+            
+            <!-- Standard Dark Blue 'A' (Capital) -->
+            <text x="75" y="80" font-family="'Quicksand', 'Arial Black', sans-serif" font-size="64" font-weight="900" fill="#0C2356" transform="skewX(-8)">A</text>
+            
+            <!-- Exact Red Swoosh curving across the 'A' -->
+            <path d="M 30 75 C 40 40, 90 25, 165 35 C 125 28, 70 38, 45 85 Z" fill="url(#swooshGrad)" />
+            
+            <!-- Lowercase 'mi' -->
+            <text x="125" y="80" font-family="'Quicksand', 'Arial Black', sans-serif" font-size="48" font-weight="900" fill="#0C2356" letter-spacing="-2">mi</text>
+            
+            <!-- Blue Star replacing the dot of lowercase 'i' -->
+            <g transform="translate(162, 40) rotate(-15) scale(0.9)">
+              <path d="M 0 -18 L 5 -5 L 18 -4 L 8 5 L 11 18 L 0 11 L -11 18 L -8 5 L -18 -4 L -5 -5 Z" fill="url(#starGrad)" />
+            </g>
+            
+            <!-- "Connect" underneath centered -->
+            <text x="120" y="110" font-family="'Quicksand', 'Arial', sans-serif" font-size="20" font-weight="900" fill="#0E3E8C" text-anchor="middle" letter-spacing="0.5">Connect</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Whiteboard Pen Controller -->
+      <div class="bg-white/95 backdrop-blur-md rounded-full shadow-lg border-2 border-pink-100 p-2 flex items-center gap-3">
+        <button id="btn-pen" onclick="toggleWhiteboard()" class="px-4 py-2 rounded-full font-bold text-sm bg-gray-100 text-gray-700 hover:bg-pink-100 hover:text-pink-600 transition-colors flex items-center gap-2">
+          ✏️ <span>Board Pen</span>
+        </button>
+        <div id="pen-colors" class="hidden flex items-center gap-1.5 transition-all duration-300">
+          <button onclick="setPenColor('#ef4444')" class="w-6 h-6 rounded-full bg-red-500 border-2 border-white ring-2 ring-red-300 transform hover:scale-110 transition-transform"></button>
+          <button onclick="setPenColor('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 border-2 border-white transform hover:scale-110 transition-transform"></button>
+          <button onclick="setPenColor('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white transform hover:scale-110 transition-transform"></button>
+          <button onclick="setPenColor('#eab308')" class="w-6 h-6 rounded-full bg-yellow-500 border-2 border-white transform hover:scale-110 transition-transform"></button>
+          <button onclick="clearWhiteboard()" class="px-2.5 py-1 text-xs bg-gray-200 text-gray-600 hover:bg-gray-300 rounded-md font-bold ml-1 transition-all">Clear Ink</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN SLIDE FRAME -->
+    <main class="flex-grow flex items-center justify-center py-4 z-10 w-full overflow-hidden">
+      
+      <!-- SLIDE 0: Welcome Slide -->
+      <div id="slide-0" class="slide-content w-full max-w-4xl flex flex-col items-center justify-center text-center space-y-8 animate-in fade-in duration-300">
+        <div class="notebook-paper w-full p-12 rounded-[2.5rem] flex flex-col items-center justify-center space-y-6">
+          <span class="text-7xl animate-bounce">🐯🐻🐊🦛🐦</span>
+          <div class="space-y-2">
+            <h2 class="text-2xl font-bold text-pink-500 tracking-widest uppercase">Family & Friends 1 - Unit 6</h2>
+            <h1 class="text-6xl font-black text-gray-800 drop-shadow-sm">They're bears!</h1>
+          </div>
+          <p class="text-lg text-gray-500 font-medium max-w-md">Welcome to Ami Connect's smart interactive online classroom!</p>
+          <button onclick="goToSlide(1)" class="px-8 py-4 bg-[#75C2B6] hover:bg-[#5EAA9F] text-white text-xl font-bold rounded-full shadow-lg border-b-4 border-teal-800 transform hover:-translate-y-1 active:translate-y-0 active:border-b-0 transition-all flex items-center gap-2">
+            Start Lesson 🚀
+          </button>
+        </div>
+      </div>
+
+      <!-- SLIDE 1: Game 1 - Unscramble Words -->
+      <div id="slide-1" class="slide-content hidden w-full max-w-4xl flex flex-col items-center space-y-6">
+        <h3 class="text-4xl font-black text-white text-center drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] tracking-widest">
+          REARRANGE THE LETTERS 🔠
+        </h3>
+        <div class="bg-white/95 rounded-[2.5rem] shadow-xl border-4 border-white p-8 w-full flex flex-col items-center space-y-6 relative">
+          <!-- Slide Progress bar -->
+          <div class="absolute top-4 right-8 flex gap-1.5" id="scramble-progress"></div>
+
+          <!-- Animal Clue Box -->
+          <div class="flex items-center gap-8 bg-pink-50/50 p-6 rounded-3xl border border-pink-100 w-full max-w-md justify-center">
+            <span id="scramble-emoji" class="text-8xl animate-pulse">🦁</span>
+            <div class="text-left">
+              <span class="text-xs font-bold text-pink-400 uppercase tracking-widest">Look at the picture & spell the word</span>
+              <p class="text-2xl font-bold text-gray-700">What is it?</p>
+            </div>
+          </div>
+
+          <!-- Target Empty Slots -->
+          <div id="scramble-slots" class="flex gap-2 justify-center flex-wrap py-4 min-h-[5rem]"></div>
+
+          <!-- Letter Pool -->
+          <div id="scramble-pool" class="flex gap-3 justify-center flex-wrap py-2"></div>
+
+          <!-- Control Button Row -->
+          <div class="flex gap-4">
+            <button onclick="resetCurrentScramble()" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-full shadow transition-all flex items-center gap-2">
+              🔄 Reset Word
+            </button>
+            <button onclick="revealScrambleAnswer()" class="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-bold rounded-full shadow transition-all flex items-center gap-2">
+              💡 Reveal Answer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: Game 2 - Grammar Detective -->
+      <div id="slide-2" class="slide-content hidden w-full max-w-4xl flex flex-col items-center space-y-6">
+        <h3 class="text-4xl font-black text-white text-center drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] tracking-widest">
+          GRAMMAR DETECTIVE 🔍
+        </h3>
+        <div class="bg-white/95 rounded-[2.5rem] shadow-xl border-4 border-white p-8 w-full flex flex-col items-center space-y-6 relative">
+          <!-- Slide Progress -->
+          <div class="absolute top-4 right-8 flex gap-1.5" id="grammar-progress"></div>
+
+          <!-- Question Display Card -->
+          <div class="w-full max-w-lg bg-emerald-50 rounded-3xl p-6 border-2 border-dashed border-emerald-300 text-center space-y-4">
+            <div id="grammar-emojis" class="text-7xl tracking-widest select-none"></div>
+            <div class="text-xl font-black text-emerald-800 tracking-wider">
+              Question: "What are they?"
+            </div>
+          </div>
+
+          <!-- Interactive Fill Area -->
+          <div class="text-4xl font-black text-gray-800 flex items-center justify-center gap-3 tracking-wide">
+            <span>They're</span>
+            <div id="grammar-blank-slot" class="bg-gray-100 border-b-8 border-gray-300 px-6 py-2 rounded-2xl min-w-[200px] text-center text-teal-600 transition-all">
+              ___________
+            </div>
+          </div>
+
+          <!-- Answer Options Box -->
+          <div id="grammar-options" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl"></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: Game 3 - Name These Animals (Match Slide) -->
+      <div id="slide-3" class="slide-content hidden w-full max-w-5xl flex flex-col items-center space-y-6">
+        <h3 class="text-4xl font-black text-white text-center drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] tracking-widest">
+          NAME THESE ANIMALS 🐊
+        </h3>
+        <div class="bg-white/95 rounded-[2.5rem] shadow-xl border-4 border-white p-8 w-full flex flex-col items-center space-y-6">
+          <p class="bg-pink-100 text-pink-700 px-6 py-2 rounded-full font-bold text-md flex items-center gap-2 shadow-sm animate-pulse">
+            👆 Tap an animal first, and then tap its matching English name!
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+            <!-- Animals Left Panel -->
+            <div class="flex flex-col gap-4" id="match-animals-container"></div>
+            <!-- Vocabulary Right Panel -->
+            <div class="flex flex-col justify-center gap-4" id="match-words-container"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- FOOTER NAV BAR (Slide Controllers) -->
+    <footer class="flex justify-between items-center z-50 px-4">
+      <button id="btn-prev" onclick="prevSlide()" class="px-6 py-3 bg-white hover:bg-pink-50 text-pink-600 font-bold rounded-full shadow-lg border border-pink-100 hover:scale-105 transition-all flex items-center gap-2">
+        👈 Back
+      </button>
+
+      <!-- Thumbnails Indicator Dots -->
+      <div class="flex items-center gap-3 bg-white/80 px-5 py-2.5 rounded-full border border-pink-100 shadow-sm">
+        <button onclick="goToSlide(0)" class="nav-dot w-4.5 h-4.5 rounded-full bg-pink-500 scale-125 transition-all"></button>
+        <button onclick="goToSlide(1)" class="nav-dot w-3.5 h-3.5 rounded-full bg-pink-200 hover:bg-pink-300 transition-all"></button>
+        <button onclick="goToSlide(2)" class="nav-dot w-3.5 h-3.5 rounded-full bg-pink-200 hover:bg-pink-300 transition-all"></button>
+        <button onclick="goToSlide(3)" class="nav-dot w-3.5 h-3.5 rounded-full bg-pink-200 hover:bg-pink-300 transition-all"></button>
+      </div>
+
+      <button id="btn-next" onclick="nextSlide()" class="px-7 py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-full shadow-lg transform hover:-translate-y-0.5 hover:scale-105 transition-all flex items-center gap-2">
+        Next 👉
+      </button>
+    </footer>
+
+  </div>
+
+  <!-- CONGRATS MODAL POPUP -->
+  <div id="congrats-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
+    <div class="bg-white rounded-[3rem] p-10 max-w-md w-full text-center shadow-2xl border-4 border-yellow-400 space-y-6">
+      <span class="text-8xl block animate-bounce">🏆</span>
+      <h3 id="modal-title" class="text-4xl font-black text-pink-500">EXCELLENT!</h3>
+      <p id="modal-text" class="text-lg text-gray-600 font-medium">You completed this challenge successfully!</p>
+      <button onclick="closeCongratsModal()" class="w-full py-4 bg-teal-500 hover:bg-teal-600 text-white font-black text-xl rounded-full shadow-lg border-b-4 border-teal-800 transition-all">
+        Awesome! 🌟
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT FOR DYNAMIC INTERACTIONS -->
+  <script>
+    let currentSlide = 0;
+    const totalSlides = 4;
+
+    // --- SOUND ENGINE (WEB AUDIO API) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'success') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+        osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3); // C6
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+      } else if (type === 'error') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      } else if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      }
+    }
+
+    // --- SLIDE NAVIGATION ---
+    function goToSlide(slideIndex) {
+      playSound('click');
+      document.querySelectorAll('.slide-content').forEach(slide => slide.classList.add('hidden'));
+      document.getElementById(`slide-${slideIndex}`).classList.remove('hidden');
+      
+      currentSlide = slideIndex;
+
+      // Update Dots UI
+      document.querySelectorAll('.nav-dot').forEach((dot, idx) => {
+        if (idx === slideIndex) {
+          dot.className = 'nav-dot w-4.5 h-4.5 rounded-full bg-pink-500 scale-125 transition-all';
+        } else {
+          dot.className = 'nav-dot w-3.5 h-3.5 rounded-full bg-pink-200 hover:bg-pink-300 transition-all';
+        }
+      });
+
+      // Show/Hide prev/next buttons safely
+      document.getElementById('btn-prev').style.visibility = slideIndex === 0 ? 'hidden' : 'visible';
+      document.getElementById('btn-next').style.visibility = slideIndex === totalSlides - 1 ? 'hidden' : 'visible';
+
+      // Clear drawings on slide change
+      clearWhiteboard();
+
+      // Trigger specific Game Setup on navigation
+      if (slideIndex === 1) initScrambleGame();
+      if (slideIndex === 2) initGrammarGame();
+      if (slideIndex === 3) initMatchGame();
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) goToSlide(currentSlide + 1);
+    }
+
+    // Previous Slide Handler
+    function prevSlide() {
+      if (currentSlide > 0) goToSlide(currentSlide - 1);
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+
+    // --- WHITEBOARD (BOARD PEN) TOOL ---
+    const canvas = document.getElementById('whiteboard');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let drawingActive = false;
+    let penColor = '#ef4444';
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 4;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function toggleWhiteboard() {
+      drawingActive = !drawingActive;
+      const btn = document.getElementById('btn-pen');
+      const colors = document.getElementById('pen-colors');
+      
+      if (drawingActive) {
+        btn.classList.add('bg-pink-500', 'text-white');
+        btn.classList.remove('bg-gray-100', 'text-gray-700');
+        colors.classList.remove('hidden');
+        canvas.style.pointerEvents = 'auto';
+      } else {
+        btn.classList.remove('bg-pink-500', 'text-white');
+        btn.classList.add('bg-gray-100', 'text-gray-700');
+        colors.classList.add('hidden');
+        canvas.style.pointerEvents = 'none';
+      }
+      playSound('click');
+    }
+
+    function setPenColor(color) {
+      penColor = color;
+      playSound('click');
+    }
+
+    function clearWhiteboard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      playSound('click');
+    }
+
+    function startDrawing(e) {
+      if (!drawingActive) return;
+      isDrawing = true;
+      draw(e);
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+      ctx.beginPath();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      ctx.strokeStyle = penColor;
+      
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX || e.touches[0].clientX) - rect.left;
+      const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+
+    // Touch Support for whiteboard drawing on tablets/interactive panels
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); });
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+
+
+    // --- CONGRATS MODAL UTILS ---
+    function showCongratsModal(title, text) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-text').innerText = text;
+      document.getElementById('congrats-modal').classList.remove('hidden');
+      playSound('success');
+    }
+
+    function closeCongratsModal() {
+      document.getElementById('congrats-modal').classList.add('hidden');
+      playSound('click');
+    }
+
+
+    // ==========================================
+    // GAME 1: SCRANGLE QUEST IMPLEMENTATION
+    // ==========================================
+    const scrambleWords = [
+      { word: 'HIPPO', emoji: '🦛' },
+      { word: 'TIGER', emoji: '🐅' },
+      { word: 'BEAR', emoji: '🐻' },
+      { word: 'BIRD', emoji: '🐦' },
+      { word: 'CROCODILE', emoji: '🐊' },
+      { word: 'DUCK', emoji: '🦆' },
+      { word: 'ELEPHANT', emoji: '🐘' }
+    ];
+    let currentScrambleIndex = 0;
+    let scrambleSelected = [];
+    let currentLettersWithState = [];
+
+    function initScrambleGame() {
+      const current = scrambleWords[currentScrambleIndex];
+      document.getElementById('scramble-emoji').innerText = current.emoji;
+      
+      // Shuffle letters
+      const originalLetters = current.word.split('');
+      let shuffled = [...originalLetters].sort(() => Math.random() - 0.5);
+      // Fallback in case shuffle matches word perfectly
+      while (shuffled.join('') === current.word) {
+        shuffled = [...originalLetters].sort(() => Math.random() - 0.5);
+      }
+
+      currentLettersWithState = shuffled.map((char, index) => ({
+        char,
+        id: index,
+        used: false
+      }));
+
+      scrambleSelected = [];
+      renderScrambleProgress();
+      renderScrambleBoard();
+    }
+
+    function renderScrambleProgress() {
+      const container = document.getElementById('scramble-progress');
+      container.innerHTML = scrambleWords.map((_, idx) => `
+        <div class="w-3.5 h-3.5 rounded-full ${idx === currentScrambleIndex ? 'bg-pink-500 scale-110' : 'bg-pink-100'} transition-all duration-300"></div>
+      `).join('');
+    }
+
+    function renderScrambleBoard() {
+      const slotsContainer = document.getElementById('scramble-slots');
+      const poolContainer = document.getElementById('scramble-pool');
+
+      const current = scrambleWords[currentScrambleIndex];
+
+      // Render slots
+      slotsContainer.innerHTML = current.word.split('').map((_, idx) => {
+        const item = scrambleSelected[idx];
+        return `
+          <div onclick="undoScrambleLetter(${idx})" class="w-16 h-20 bg-gray-100 hover:bg-gray-200 cursor-pointer rounded-2xl border-b-[6px] border-gray-300 flex items-center justify-center text-4xl font-black text-gray-700 shadow-md transition-all">
+            ${item ? item.char : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Render letters pool
+      poolContainer.innerHTML = currentLettersWithState.map(item => {
+        return `
+          <button onclick="chooseScrambleLetter(${item.id})" ${item.used ? 'disabled' : ''} 
+            class="w-16 h-16 rounded-2xl text-3xl font-black transition-all duration-150 transform active:translate-y-1.5 active:border-b-0
+            ${item.used 
+              ? 'bg-gray-100 text-gray-300 border-none opacity-40 scale-95 pointer-events-none' 
+              : 'bg-yellow-400 text-yellow-950 border-b-[6px] border-yellow-600 hover:bg-yellow-300 hover:-translate-y-1 hover:shadow-lg'
+            }">
+            ${item.char}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function chooseScrambleLetter(id) {
+      const item = currentLettersWithState.find(l => l.id === id);
+      if (!item || item.used) return;
+
+      item.used = true;
+      scrambleSelected.push(item);
+      playSound('click');
+      renderScrambleBoard();
+
+      // Check win condition
+      const current = scrambleWords[currentScrambleIndex];
+      if (scrambleSelected.length === current.word.length) {
+        const joined = scrambleSelected.map(l => l.char).join('');
+        if (joined === current.word) {
+          setTimeout(() => {
+            if (currentScrambleIndex < scrambleWords.length - 1) {
+              showCongratsModal('AWESOME SPELLING!', `You correctly spelled: ${current.word}!`);
+              currentScrambleIndex++;
+              initScrambleGame();
+            } else {
+              showCongratsModal('CHAMPION!', 'You successfully spelled all vocabulary words today!');
+              currentScrambleIndex = 0;
+              initScrambleGame();
+            }
+          }, 300);
+        } else {
+          playSound('error');
+          // Add error animation look
+          document.getElementById('scramble-slots').classList.add('animate-shake');
+          setTimeout(() => {
+            document.getElementById('scramble-slots').classList.remove('animate-shake');
+          }, 500);
+        }
+      }
+    }
+
+    function undoScrambleLetter(idx) {
+      if (!scrambleSelected[idx]) return;
+      const removedItem = scrambleSelected[idx];
+      scrambleSelected.splice(idx, 1);
+      
+      const item = currentLettersWithState.find(l => l.id === removedItem.id);
+      if (item) item.used = false;
+
+      playSound('click');
+      renderScrambleBoard();
+    }
+
+    // Reset game
+    function resetCurrentScramble() {
+      initScrambleGame();
+    }
+
+    // Show answer helper
+    function revealScrambleAnswer() {
+      const current = scrambleWords[currentScrambleIndex];
+      scrambleSelected = current.word.split('').map((char, index) => ({ char, id: index }));
+      currentLettersWithState.forEach(l => l.used = true);
+      renderScrambleBoard();
+      playSound('success');
+    }
+
+
+    // ==========================================
+    // GAME 2: GRAMMAR DETECTIVE
+    // ==========================================
+    const grammarQuestions = [
+      { emojis: '🐊 🐊', answer: 'crocodiles', hint: 'cro_od_les', options: ["They're crocodiles.", "It's a crocodile.", "They're hippos."] },
+      { emojis: '🐻 🐻 🐻', answer: 'bears', hint: 'b_ars', options: ["It's a bear.", "They're bears.", "They're birds."] },
+      { emojis: '🐦 🐦', answer: 'birds', hint: 'b_rds', options: ["They're birds.", "It's a bird.", "They're tigers."] },
+      { emojis: '🦛 🦛', answer: 'hippos', hint: 'h_pp_s', options: ["It's a hippo.", "They're crocodiles.", "They're hippos."] }
+    ];
+    let currentGrammarIndex = 0;
+    let canAnswerGrammar = true;
+
+    function initGrammarGame() {
+      canAnswerGrammar = true;
+      const current = grammarQuestions[currentGrammarIndex];
+      document.getElementById('grammar-emojis').innerText = current.emojis;
+      document.getElementById('grammar-blank-slot').innerText = '___________';
+      document.getElementById('grammar-blank-slot').className = "bg-gray-100 border-b-8 border-gray-300 px-6 py-2 rounded-2xl min-w-[200px] text-center text-teal-600 transition-all";
+
+      renderGrammarProgress();
+
+      const optionsBox = document.getElementById('grammar-options');
+      // Pass index (idx) instead of string to avoid quote escaping breaks
+      optionsBox.innerHTML = current.options.map((option, idx) => `
+        <button id="gram-opt-${idx}" onclick="checkGrammarAnswer(${idx})" 
+          class="p-4 bg-gray-50 border-4 border-gray-200 hover:border-pink-300 hover:bg-pink-50 text-gray-700 text-xl font-bold rounded-2xl shadow transition-all duration-150 text-left pl-8 flex items-center justify-between w-full">
+          <span>${option}</span>
+          <span class="text-2xl hidden" id="gram-chk-${idx}"></span>
+        </button>
+      `).join('');
+    }
+
+    function renderGrammarProgress() {
+      const container = document.getElementById('grammar-progress');
+      container.innerHTML = grammarQuestions.map((_, idx) => `
+        <div class="w-3.5 h-3.5 rounded-full ${idx === currentGrammarIndex ? 'bg-pink-500 scale-110' : 'bg-pink-100'} transition-all duration-300"></div>
+      `).join('');
+    }
+
+    function checkGrammarAnswer(idx) {
+      if (!canAnswerGrammar) return;
+      canAnswerGrammar = false;
+
+      const current = grammarQuestions[currentGrammarIndex];
+      const selectedOption = current.options[idx];
+      const isCorrect = selectedOption.includes(current.answer) && selectedOption.startsWith("They're");
+
+      const button = document.getElementById(`gram-opt-${idx}`);
+      const checked = document.getElementById(`gram-chk-${idx}`);
+
+      if (isCorrect) {
+        button.className = "p-4 bg-emerald-50 border-4 border-emerald-400 text-emerald-800 text-xl font-bold rounded-2xl shadow scale-105 transition-all duration-150 text-left pl-8 flex items-center justify-between w-full";
+        checked.innerText = '✅';
+        checked.classList.remove('hidden');
+
+        // Fill blank text dynamically
+        document.getElementById('grammar-blank-slot').innerText = current.answer + "!";
+        document.getElementById('grammar-blank-slot').className = "bg-emerald-50 border-b-8 border-emerald-400 px-6 py-2 rounded-2xl min-w-[200px] text-center text-emerald-600 transition-all font-black";
+
+        playSound('success');
+
+        setTimeout(() => {
+          if (currentGrammarIndex < grammarQuestions.length - 1) {
+            currentGrammarIndex++;
+            initGrammarGame();
+          } else {
+            showCongratsModal('SUPER DETECTIVE!', 'You successfully answered all the plural grammar questions!');
+            currentGrammarIndex = 0;
+            initGrammarGame();
+          }
+        }, 1500);
+
+      } else {
+        button.className = "p-4 bg-red-50 border-4 border-red-400 text-red-800 text-xl font-bold rounded-2xl shadow transition-all duration-150 text-left pl-8 flex items-center justify-between w-full animate-shake";
+        checked.innerText = '❌';
+        checked.classList.remove('hidden');
+
+        playSound('error');
+        setTimeout(() => {
+          canAnswerGrammar = true;
+          button.className = "p-4 bg-gray-50 border-4 border-gray-200 hover:border-pink-300 hover:bg-pink-50 text-gray-700 text-xl font-bold rounded-2xl shadow transition-all duration-150 text-left pl-8 flex items-center justify-between w-full";
+          checked.classList.add('hidden');
+        }, 1000);
+      }
+    }
+
+
+    // ==========================================
+    // GAME 3: TAP & MATCH GAME
+    // ==========================================
+    const matchPairs = [
+      { id: 1, name: 'BIRD', emoji: '🐦', color: '#60a5fa' },
+      { id: 2, name: 'BEAR', emoji: '🐻', color: '#fb923c' },
+      { id: 3, name: 'HIPPO', emoji: '🦛', color: '#c084fc' },
+      { id: 4, name: 'CROCODILE', emoji: '🐊', color: '#4ade80' },
+      { id: 5, name: 'TIGER', emoji: '🐅', color: '#facc15' }
+    ];
+
+    let selectedAnimalId = null;
+    let selectedWordName = null;
+    let solvedAnimalIds = [];
+
+    function initMatchGame() {
+      selectedAnimalId = null;
+      selectedWordName = null;
+      solvedAnimalIds = [];
+      renderMatchGame();
+    }
+
+    function renderMatchGame() {
+      const animalsContainer = document.getElementById('match-animals-container');
+      const wordsContainer = document.getElementById('match-words-container');
+
+      // 1. Render Animal Elements Left panel
+      animalsContainer.innerHTML = matchPairs.map(animal => {
+        const isSolved = solvedAnimalIds.includes(animal.id);
+        const isSelected = selectedAnimalId === animal.id;
+        
+        return `
+          <div onclick="selectMatchAnimal(${animal.id})" 
+            style="border-color: ${isSelected ? animal.color : (isSolved ? '#4ade80' : 'transparent')};"
+            class="flex items-center gap-6 p-4 rounded-3xl cursor-pointer border-4 bg-white shadow-md hover:scale-102 hover:shadow-lg transition-all
+            ${isSolved ? 'bg-emerald-50/50 opacity-65 cursor-not-allowed' : ''}">
+            <span class="text-6xl">${animal.emoji}</span>
+            <div class="flex-grow">
+              <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Animal ID #${animal.id}</span>
+              <div class="h-8 flex items-center">
+                ${isSolved 
+                  ? `<span class="text-xl font-black text-emerald-600">${animal.name}</span>` 
+                  : `<span class="text-gray-300 font-bold italic text-sm">Unknown...</span>`
+                }
+              </div>
+            </div>
+            <div>
+              ${isSolved ? '🎯' : (isSelected ? '👈' : '')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 2. Render Randomly Shuffled Words Right panel
+      const sortedWords = [...matchPairs].sort((a, b) => a.name.localeCompare(b.name));
+      wordsContainer.innerHTML = sortedWords.map(word => {
+        const isSolved = solvedAnimalIds.includes(word.id);
+        const isSelected = selectedWordName === word.name;
+
+        return `
+          <button onclick="selectMatchWord('${word.name}')" ${isSolved ? 'disabled' : ''}
+            style="border-color: ${isSelected ? '#eab308' : (isSolved ? '#34d399' : 'transparent')};"
+            class="p-5 text-2xl font-black rounded-2xl border-4 transition-all duration-150 transform active:translate-y-1 w-full text-center
+            ${isSolved 
+              ? 'bg-emerald-50 text-emerald-400 border-emerald-200 cursor-not-allowed opacity-40 scale-95' 
+              : 'bg-yellow-100 text-yellow-900 border-yellow-200 hover:bg-yellow-200 hover:-translate-y-0.5 hover:shadow-md'
+            }">
+            ${word.name}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectMatchAnimal(id) {
+      if (solvedAnimalIds.includes(id)) return;
+      selectedAnimalId = id;
+      playSound('click');
+      renderMatchGame();
+      checkMatch();
+    }
+
+    function selectMatchWord(name) {
+      selectedWordName = name;
+      playSound('click');
+      renderMatchGame();
+      checkMatch();
+    }
+
+    function checkMatch() {
+      if (selectedAnimalId && selectedWordName) {
+        const animal = matchPairs.find(a => a.id === selectedAnimalId);
+        
+        if (animal && animal.name === selectedWordName) {
+          // Success match
+          solvedAnimalIds.push(selectedAnimalId);
+          playSound('success');
+
+          // Check if all matched
+          if (solvedAnimalIds.length === matchPairs.length) {
+            setTimeout(() => {
+              showCongratsModal('SUPER VOCABULARY!', 'You successfully matched all the animals with their names!');
+              initMatchGame();
+            }, 500);
+          }
+        } else {
+          playSound('error');
+        }
+
+        // Reset selections
+        selectedAnimalId = null;
+        selectedWordName = null;
+        setTimeout(renderMatchGame, 300);
+      }
+    }
+
+
+    // --- INITIAL BOOTSTRAP ---
+    window.onload = function() {
+      goToSlide(0);
+    }
+  </script>
+</body>
+</html>
